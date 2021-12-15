@@ -1,6 +1,7 @@
 package com.example.demo.controller;
 
 import com.example.demo.entity.Book;
+import com.example.demo.service.BookService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -12,16 +13,17 @@ import java.util.Map;
 @RequestMapping("/book")
 public class BookController {
 
-    private Map<Long, Book> map = new HashMap<>();
+//    private Map<Long, Book> map = new HashMap<>();
+    BookService bookService=new BookService();
 
     @GetMapping("/all")
     public ResponseEntity<Collection<Book>> getAll() {
-        return ResponseEntity.ok(map.values());
+        return ResponseEntity.ok(bookService.getMap().values());
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<Book> getById(@PathVariable long id) {
-        Book book = map.get(id);
+        Book book = bookService.getMap().get(id);
         if (book == null) {
             return ResponseEntity.notFound().build();
         }
@@ -30,29 +32,29 @@ public class BookController {
 
     @PostMapping("/insert")
     public ResponseEntity<Void> insert(@RequestBody Book book) {
-        if (map.containsKey(book.getId())) {
-            return ResponseEntity.badRequest().build();
-        }
-        map.put(book.getId(), book);
-        return ResponseEntity.ok().build();
+        boolean result=bookService.insert(book);
+        if (result) {
+            return ResponseEntity.ok().build();
+        }else {
+        return ResponseEntity.badRequest().build();}
     }
 
     @PutMapping("/update")
     public ResponseEntity<Void> update(@RequestBody Book book) {
-        if (!map.containsKey(book.getId())) {
-            return ResponseEntity.badRequest().build();
-        }
-        map.put(book.getId(), book);
-        return ResponseEntity.ok().build();
+        boolean result=bookService.insert(book);
+        if (result) {
+            return ResponseEntity.ok().build();
+        }else {
+            return ResponseEntity.badRequest().build();}
     }
 
     @DeleteMapping("/delete/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Long id) {
-        if (!map.containsKey(id)) {
+    public ResponseEntity<Void> delete(@PathVariable Book book) {
+        boolean result=bookService.insert(book);
+        if (result) {
             return ResponseEntity.ok().build();
-        }
-        map.remove(id);
-        return ResponseEntity.ok().build();
+        }else {
+            return ResponseEntity.badRequest().build();}
     }
 
 }
